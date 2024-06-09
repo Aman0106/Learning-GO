@@ -2,10 +2,14 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
+	"strconv"
 
 	"github.com/Aman0106/ApiWithMongo/model"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -97,4 +101,67 @@ func handleError(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Exported Controllers
+
+func GetAllMovies(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/x-www-form-urlencode")
+
+	allMovies := getAllMovies()
+	json.NewEncoder(w).Encode(allMovies)
+}
+
+func CreateMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/x-www-form-urlencodde")
+	w.Header().Set("Allow-Control-Allow-Methods", "POST")
+
+	fmt.Println("Creating NewMovie")
+	var movie model.Netflix
+	err := json.NewDecoder(r.Body).Decode(&movie)
+	handleError(err)
+	insertOneMovie(movie)
+	json.NewEncoder(w).Encode(movie)
+
+	fmt.Println("Success creating a movie")
+}
+
+func MarkAsWatched(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Seting movie as Watched")
+
+	w.Header().Set("Content-Type", "application/x-www-form-urlencodde")
+	w.Header().Set("Allow-Control-Allow-Methods", "PUT")
+
+	params := mux.Vars(r)
+	updateOneMovie(params["id"])
+
+	json.NewEncoder(w).Encode(params["id"])
+
+	fmt.Println("Sucess Updating a movie")
+}
+
+func DeleteOneMovie(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Deleteing one movie")
+
+	w.Header().Set("Content-Type", "application/x-www-form-urlencodde")
+	w.Header().Set("Allow-Control-Allow-Methods", "DELETE")
+
+	params := mux.Vars(r)
+	deleteOneMovie(params["id"])
+
+	json.NewEncoder(w).Encode("Successfully Deleted: " + params["id"])
+
+}
+
+func DeleteAllMovies(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Deleteing all movie")
+
+	w.Header().Set("Content-Type", "application/x-www-form-urlencodde")
+	w.Header().Set("Allow-Control-Allow-Methods", "DELETE")
+
+	count := deleteAllMovies()
+
+	json.NewEncoder(w).Encode("Number of movies deleted: " + strconv.Itoa(int(count)))
+
+	fmt.Println("Success Deleting all")
 }
