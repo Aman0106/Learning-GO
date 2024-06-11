@@ -49,7 +49,7 @@ func updateOneMovie(movieId string) {
 	handleError(err)
 
 	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"Watched": true}}
+	update := bson.M{"$set": bson.M{"watched": true}}
 
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	handleError(err)
@@ -164,4 +164,9 @@ func DeleteAllMovies(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Number of movies deleted: " + strconv.Itoa(int(count)))
 
 	fmt.Println("Success Deleting all")
+}
+
+func ServeHome(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Serving Home")
+	w.Write([]byte("<h1>Welcome To Netflix</h1>"))
 }
